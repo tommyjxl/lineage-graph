@@ -1,0 +1,301 @@
+<head>
+  <script src="https://d3js.org/d3.v6.js"></script>
+  <script src="https://unpkg.com/d3-dsv"></script>
+  <script src="https://unpkg.com/d3-quadtree"></script>
+  <script src="https://unpkg.com/d3-force"></script>
+  <script src="https://unpkg.com/force-graph"></script>
+
+    <!-- Needed for JSON file import (https://stackoverflow.com/questions/33392557/vis-js-simple-example-edges-do-not-show): -->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet">
+
+  <center>
+      <h2><span>Data Lineage Explorer</span></h2>
+  </center>
+
+  <style type="text/css">
+          .hidden{
+            display:none
+          }
+
+          body{
+            margin: 0;
+            font-family: 'Open Sans', sans-serif;
+          }
+
+          #info_pane{
+            word-wrap: break-word;
+          }
+
+          #graph{
+            margin: 0;
+          }
+
+          table, th, tr, td {
+            word-wrap: break-word;
+            border: 0.3px solid grey;
+          }
+
+          #mynetwork {
+              width: 1024px;
+              height: 768px;
+              background-color: #090909;
+              border: 1px solid lightgray;
+              position: relative;
+              float: left;
+          }
+
+          
+          #loadingBar {
+              position:absolute;
+              top:0px;
+              left:0px;
+              width: 1024px;
+              height: 768px;
+              background-color:rgba(200,200,200,0.8);
+              -webkit-transition: all 0.5s ease;
+              -moz-transition: all 0.5s ease;
+              -ms-transition: all 0.5s ease;
+              -o-transition: all 0.5s ease;
+              transition: all 0.5s ease;
+              opacity:1;
+          }
+
+          #bar {
+              position:absolute;
+              top:0px;
+              left:0px;
+              width:20px;
+              height:20px;
+              margin:auto auto auto auto;
+              border-radius:11px;
+              border:2px solid rgba(30,30,30,0.05);
+              background: rgb(0, 173, 246); /* Old browsers */
+              box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+          }
+
+          #border {
+              position:absolute;
+              top:10px;
+              left:10px;
+              width:500px;
+              height:23px;
+              margin:auto auto auto auto;
+              box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+              border-radius:10px;
+          }
+
+          #text {
+              position:absolute;
+              top:8px;
+              left:530px;
+              width:30px;
+              height:50px;
+              margin:auto auto auto auto;
+              font-size:22px;
+              color: #000000;
+          }
+
+          div.outerBorder {
+              position:relative;
+              top:400px;
+              width:600px;
+              height:44px;
+              margin:auto auto auto auto;
+              border:8px solid rgba(0,0,0,0.1);
+              background: rgb(252,252,252); /* Old browsers */
+              background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+              background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+              background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+              background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+              background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+              background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+              filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+              border-radius:72px;
+              box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+          }
+  </style>
+
+</head>
+
+<body>
+<div style="width: 30%; float:left" id="info_pane">
+  <div id="placeholder">
+    <h2> Node Info </h2>
+    <span>Please click on a node for more information</span>
+  </div>
+  <div id="content" class="hidden">
+    <h2> Node Info </h2>
+    <div style="float:top" id="node_info">
+      <table style="table-layout: fixed; width: 100%">
+        <tbody>
+          <tr><td colspan="1"> BQ Project </td><td id="bq_project" colspan="3"></td></tr>
+          <tr><td colspan="1"> Dataset </td><td id="bq_dataset" colspan="3"></td></tr>
+          <tr><td colspan="1"> Object </td><td id="bq_object" colspan="3"></td></tr>
+          <tr><td colspan="1"> Type </td><td id="object_type" colspan="3"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <br/>
+    <h4>Producers:</h4>
+    <div id="producer_info" style="height: 120px; overflow-y: scroll; font-size: 60%;">
+
+      <ul id="producers_list"></ul>
+    </div>
+     <h4>Consumers:</h4>
+    <div id="consumer_info" style="height: 120px; overflow-y: scroll; font-size: 60%;">
+       <ul id="consumers_list"></ul>
+    </div>
+  </div>
+</div>
+<div id="graphContainer" style="width: 70%; float:right">
+  <div id="graph"></div>
+</div>
+  <script>
+     window.devicePixelRatio = 1; // use standard resolution in retina displays
+
+    $.getJSON("../data/dataset.json", function(json){
+      var data = json;
+
+      var dataUri = "data:application/json," + JSON.stringify(data);
+
+      const GROUPS = 12;
+
+      data.links.forEach(link => {
+
+        const a = data.nodes.find(elem => elem["id"] == link.source)
+        a.group = Math.ceil(Math.random() * GROUPS)
+        const b = data.nodes.find(elem => elem["id"] == link.target)
+        !a.neighbors && (a.neighbors = []);
+        !b.neighbors && (b.neighbors = []);
+        a.neighbors.push(b);
+        b.neighbors.push(a);
+
+        !a.links && (a.links = []);
+        !b.links && (b.links = []);
+        a.links.push(link);
+        b.links.push(link);
+      })
+
+      function cleanup_info(){
+          selectedNode = null
+          $('#bq_object').text(null)
+          $('#bq_dataset').text(null)
+          $('#bq_project').text(null)
+          $('#object_type').text(null)
+
+          $('#consumers_list').empty()
+          $('#producers_list').empty()
+
+
+          $('#content').addClass('hidden')
+          $('#placeholder').removeClass('hidden')
+      }
+
+      const NODE_R = 4;
+      const highlightNodes = new Set();
+      const highlightLinks = new Set();
+      let selectedNode = null;
+      let hoverNode = null;
+      const elem = document.getElementById('graph');
+
+      ForceGraph()(elem)
+        .graphData(data)
+        .dagMode('radialin')
+        .onDagError(e=>{console.log(e)})
+        .backgroundColor('#FFFFFF')
+        .nodeLabel('label')
+        .nodeRelSize(NODE_R)
+        .onNodeClick(node => {
+          selectedNode = node;
+          consumed_by=[]
+          produced_by=[]
+          for (item of node.links) {
+              if (node['id'] == item.source.id){
+                  consumed_by.push(item.target.id)
+              } else {
+                  produced_by.push(item.source.id)
+              }
+          }
+          obj_type = (node.id.split(':')[0]).trim()
+          obj_name = (node.id.split(':')[1]).split('.')
+
+          $('#bq_object').text(obj_name.pop())
+          $('#bq_dataset').text(obj_name.pop())
+          $('#bq_project').text(obj_name.length==1 ? (obj_name.pop()).trim(): '')
+          $('#object_type').text(obj_type.trim())
+
+          $('#consumers_list').empty()
+          $('#producers_list').empty()
+
+          for (item of consumed_by) {
+            $('#consumers_list').append("<li>"+item+"</li>");
+          }
+
+          for (item of produced_by) {
+            $('#producers_list').append("<li>"+item+"</li>");
+          }
+
+          $('#placeholder').addClass('hidden')
+          $('#content').removeClass('hidden')
+
+        })
+        .onNodeHover(node => {
+          highlightNodes.clear();
+          highlightLinks.clear();
+          if (node) {
+            highlightNodes.add(node);
+            if (node.neighbors) node.neighbors.forEach(neighbor => highlightNodes.add(neighbor));
+            if (node.links) node.links.forEach(link => highlightLinks.add(link));
+          }
+
+          hoverNode = node || null;
+          elem.style.cursor = node ? '-webkit-grab' : null;
+        })
+        .onLinkHover(link => {
+          highlightNodes.clear();
+          highlightLinks.clear();
+
+          if (link) {
+            highlightLinks.add(link);
+            highlightNodes.add(link.source);
+            highlightNodes.add(link.target);
+          }
+        })
+
+        .linkCurvature('curvature')
+        .linkColor((link) => highlightLinks.has(link) ? link.target.color : link.color)
+        .linkWidth((link) => highlightLinks.has(link) ? 2: 1)
+        .linkDirectionalArrowLength((link) => highlightLinks.has(link) ? 4: 3)
+        .linkDirectionalParticles(1)
+        .linkDirectionalParticleSpeed((link) => highlightLinks.has(link) ? 0.02: 0.005)
+        .linkDirectionalParticleWidth((link) => highlightLinks.has(link) ? 3: 2)
+
+        .nodeColor((node) => node.filter_full_match ? 'magenta': 'black')
+        .nodeCanvasObjectMode(node => highlightNodes.has(node) ? 'before' : 'undefined')
+        .nodeCanvasObject((node, ctx) => {
+          // add ring just for highlighted nodes
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, NODE_R * 1.4, 0, 2 * Math.PI, false);
+          ctx.fillStyle = node.color
+          ctx.fill();
+
+          // comment this out to remove labelling of all neighbours
+          // if (node != hoverNode) {
+          //   ctx.font = `9px Sans-Serif`;
+          //   ctx.textAlign = 'left';
+          //   ctx.textBaseline = 'middle';
+          //   ctx.fillStyle = 'magenta'
+          //   ctx.fillText(node.label, node.x + 10, node.y);
+          // }
+
+        })
+        .zoom(0.06)
+        .enableNodeDrag(false)
+        .onBackgroundClick(cleanup_info)
+        .onLinkClick(cleanup_info);
+      });
+
+  </script>
+</body>
