@@ -2,9 +2,9 @@
 
 pip install -r requirements.txt &&
 
-python manifest_generator.py --input_dir "../big_query" --output_dir "../data" &&
+python manifest_generator.py --input_dir "../data" --output_dir "../data" &&
 
-python manifest2table.py --input_dir "../big_query" --type_filter "table|view" --output_dir "../data" &&
+python manifest2table.py --input_dir "../data" --type_filter "table|view" --output_dir "../data" &&
 
 ## sample for filtering the lineage of my_dataset.my_table only
 #python table2graph.py --input "../data/dependencies.csv" --output_dir "../data" --filter "(project_id\.my_dataset\.my_table)" &&

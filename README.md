@@ -9,10 +9,14 @@ Graph generator for expressing lineage between data source and a visualisation d
 4) Visualise the graph
 
 ## Quickstart
-Mac OS: Install Google Chome to your local /Users/<username>/Applications directory.
 `cd <path/to/lineage-graph/src> && ./run_demo.sh`
+For the first run, you may be prompted to grant the terminal certain permissions.
+
 
 ## Running individual steps:
+This assumes that a project with SQL files to be parsed a specific way.
+For other types of parsing, the manifest_generator will be need to be updated.
+
 `cd <path/to/lineage-graph/src> && ./run.sh` OR
 
 `python manifest_generator.py --input_dir <input_directory> --output_dir <output_directory>`
@@ -43,8 +47,11 @@ Fill them with the regex pattern to generate a subset of the dependency table. E
 
 `python table2graph.py --input "../data/dependencies.csv" --output_dir "../data" --filter "(project_id\\.(my_dataset|old_dataset)\\..(.*?))`
 
-## To view the visualized graph:
-`open -a /Applications/Google\ Chrome.app/ force-graph.html --args --allow-file-access-from-files --allow-file-access --allow-cross-origin-auth-prompt`
+## Manually view the visualized graph:
+`cd path/to/lineage-graph/src`
+`python -m http.server`
+Open a browser and go to `http://localhost:8000/`
+Click `force-graph.html` to load the graph
 
 ## To customize colors:
 Edit table2graph.py global variables - replace with your RGB(A) values

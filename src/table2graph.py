@@ -78,7 +78,7 @@ class Csv2Graph():
 	def tidy_bq_names(self):
 		self.relabel_map = {}
 
-		with open('output/output_to_type.json') as f:
+		with open('../data/output_to_type.json') as f:
 			output_to_type = json.loads(f.read())
 
 		for row in self.list_data[DATA_ROW_START_INDEX:]:
@@ -259,6 +259,7 @@ class Csv2Graph():
 		with open(self.output_dir + "/nodes_analysis.json", 'w') as f:
 			f.write(json.dumps(readable_note_stats, indent=2))
 
+
 	def run(self):
 		self.read_csv()
 		self.tidy_bq_names()
@@ -271,7 +272,7 @@ class Csv2Graph():
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
-	parser.add_argument('--input', default='output/dependencies.csv')
+	parser.add_argument('--input', default='data/dependencies.csv')
 	parser.add_argument('--output_dir', default='output')
 	parser.add_argument('--filter', default="(.*?)")
 	args = parser.parse_args()
