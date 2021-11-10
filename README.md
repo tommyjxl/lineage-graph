@@ -8,10 +8,18 @@ Graph generator for expressing lineage between data source and a visualisation d
 3) Create a json representation of the graph
 4) Visualise the graph
 
-## Quickstart
+## Quickstart (Mac OS)
 `cd <path/to/lineage-graph/src> && ./run_demo.sh`
 For the first run, you may be prompted to grant the terminal certain permissions.
 
+## Manually view the visualized graph:
+`cd path/to/lineage-graph/src`
+
+`python -m http.server`
+
+Open a browser and go to `http://localhost:8000/`
+
+Click `force-graph.html` to load the graph
 
 ## Running individual steps:
 This assumes that a project with SQL files to be parsed a specific way.
@@ -47,11 +55,6 @@ Fill them with the regex pattern to generate a subset of the dependency table. E
 
 `python table2graph.py --input "../data/dependencies.csv" --output_dir "../data" --filter "(project_id\\.(my_dataset|old_dataset)\\..(.*?))`
 
-## Manually view the visualized graph:
-`cd path/to/lineage-graph/src`
-`python -m http.server`
-Open a browser and go to `http://localhost:8000/`
-Click `force-graph.html` to load the graph
 
 ## To customize colors:
 Edit table2graph.py global variables - replace with your RGB(A) values
