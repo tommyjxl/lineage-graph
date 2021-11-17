@@ -4,4 +4,4 @@ osascript -e 'tell application "Terminal" to activate' \
 
 sleep 1
 
-open -a /Applications/Google\ Chrome.app/ http://localhost:8000/force-graph.html
+open -a /Applications/Google\ Chrome.app/ http://localhost:8000/src/force-graph.html

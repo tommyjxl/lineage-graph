@@ -9,7 +9,7 @@ Graph generator for expressing lineage between data source and a visualisation d
 4) Visualise the graph
 
 ## Quickstart (Mac OS)
-`cd <path/to/lineage-graph/src> && ./run_demo.sh`
+`./run_demo.sh`
 For the first run, you may be prompted to grant the terminal certain permissions.
 
 ## Manually view the visualized graph:
@@ -32,6 +32,10 @@ For other types of parsing, the manifest_generator will be need to be updated.
 `python manifest2table.py --input_dir <input_directory> --filter "(.*\\.my_dataset\\..*xyz*)"`
 
 `python table2graph.py --input <path/to/dependencies.csv> --output_dir <output_directory>`
+
+To visualise the graph, output directory should be `<path/to/lineage-graph/data>`
+Run the demo from lineage-graph root:
+`cd <path/to/lineage-graph && ./run_demo.sh`
 
 Summary of output files:
 
