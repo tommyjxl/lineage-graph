@@ -1,8 +1,5 @@
 <head>
-  <script src="https://d3js.org/d3.v6.js"></script>
-  <script src="https://unpkg.com/d3-dsv"></script>
-  <script src="https://unpkg.com/d3-quadtree"></script>
-  <script src="https://unpkg.com/d3-force"></script>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
   <script src="https://unpkg.com/force-graph"></script>
 
     <!-- Needed for JSON file import (https://stackoverflow.com/questions/33392557/vis-js-simple-example-edges-do-not-show): -->
@@ -10,11 +7,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet">
 
-  <center>
-      <h2><span>Data Lineage Explorer</span></h2>
-  </center>
-
   <style type="text/css">
+          /* Decrease font size for the main title */
           .hidden{
             display:none
           }
@@ -25,7 +19,26 @@
           }
 
           #info_pane{
+            /* --- Fixed position for the left panel --- */
+            position: fixed; /* Lock the panel to the viewport */
+            top: 0;
+            left: 0;
+            width: 25%; /* Set the width of the panel */
+            height: 100vh; /* Make it full height */
+            overflow-y: auto; /* Add a scrollbar if content overflows */
+            padding: 1em;
+            box-sizing: border-box;
+            background: #f8f9fa; /* Add a background to distinguish it */
+            border-right: 1px solid #dee2e6;
+            z-index: 10; /* Ensure it stays on top of the graph */
             word-wrap: break-word;
+            /* --- ADJUST THIS VALUE to change the font size for the entire left sidebar --- */
+            font-size: 0.65em;
+          }
+
+          /* Ensure all text elements in the sidebar inherit the base font size */
+          #info_pane h2, #info_pane h4, #info_pane li, #node_info table {
+            font-size: inherit; /* Force inheritance from the #info_pane font-size */
           }
 
           #graph{
@@ -35,6 +48,11 @@
           table, th, tr, td {
             word-wrap: break-word;
             border: 0.3px solid grey;
+          }
+
+          #graphContainer {
+            /* Add margin to prevent the graph from being hidden by the fixed panel */
+            margin-left: 25%;
           }
 
           #mynetwork {
@@ -120,7 +138,9 @@
 </head>
 
 <body>
-<div style="width: 30%; float:left" id="info_pane">
+<div id="info_pane">
+  <h2><span>Data Lineage Explorer</span></h2>
+  <hr>
   <div id="placeholder">
     <h2> Node Info </h2>
     <span>Please click on a node for more information</span>
@@ -139,17 +159,17 @@
     </div>
     <br/>
     <h4>Producers:</h4>
-    <div id="producer_info" style="height: 120px; overflow-y: scroll; font-size: 60%;">
+    <div id="producer_info" style="height: 120px; overflow-y: scroll;">
 
       <ul id="producers_list"></ul>
     </div>
      <h4>Consumers:</h4>
-    <div id="consumer_info" style="height: 120px; overflow-y: scroll; font-size: 60%;">
+    <div id="consumer_info" style="height: 120px; overflow-y: scroll;">
        <ul id="consumers_list"></ul>
     </div>
   </div>
 </div>
-<div id="graphContainer" style="width: 70%; float:right">
+<div id="graphContainer">
   <div id="graph"></div>
 </div>
   <script>

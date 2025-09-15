@@ -1,6 +1,6 @@
 # lineage-graph
 Graph generator for expressing lineage between data source and a visualisation demo
-![image info](graph.png)
+![image info](graph-animation.gif)
 
 ## Process Overview
 1) Generate manifest files for each BQ-to-BQ task (for compatible config and sql file)
@@ -13,12 +13,8 @@ Graph generator for expressing lineage between data source and a visualisation d
 For the first run, you may be prompted to grant the terminal certain permissions.
 
 ## Manually view the visualized graph:
-`cd path/to/lineage-graph/src`
-
 `python -m http.server`
-
 Open a browser and go to `http://localhost:8000/`
-
 Click `force-graph.html` to load the graph
 
 ## Running individual steps:
