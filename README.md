@@ -9,8 +9,7 @@ Graph generator for expressing lineage between data source and a visualisation d
 4) Visualise the graph
 
 ## Quickstart (Mac OS)
-`./run_demo.sh`
-For the first run, you may be prompted to grant the terminal certain permissions.
+`./view_graph.sh`
 
 ## Manually view the visualized graph:
 `python -m http.server`
